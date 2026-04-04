@@ -199,8 +199,8 @@ export default function Index() {
             >
               <Icon name="PanelLeft" size={18} />
             </button>
-            <span className="font-bold tracking-tight text-sm text-foreground uppercase">
-              PC<span style={{ color: "hsl(16 90% 55%)" }}>.</span>Market
+            <span className="font-bold tracking-tight text-sm text-foreground">
+              ПК для всех
             </span>
           </div>
 
