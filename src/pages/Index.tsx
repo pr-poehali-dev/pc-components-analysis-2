@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import Icon from "@/components/ui/icon";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const PRODUCTS = [
   {
@@ -10,7 +11,8 @@ const PRODUCTS = [
     category: "Процессоры",
     brand: "AMD",
     price: 18900,
-    specs: { cores: 6, threads: 12, tdp: 105, socket: "AM5", boost: "5.3 ГГц" },
+    year: 2022,
+    specs: { cores: 6, threads: 12, base: "4.7 ГГц", boost: "5.3 ГГц", tdp: 105, socket: "AM5" },
     tag: "Хит",
   },
   {
@@ -19,7 +21,8 @@ const PRODUCTS = [
     category: "Процессоры",
     brand: "Intel",
     price: 21500,
-    specs: { cores: 14, threads: 20, tdp: 125, socket: "LGA1700", boost: "5.3 ГГц" },
+    year: 2023,
+    specs: { cores: 14, threads: 20, base: "3.5 ГГц", boost: "5.3 ГГц", tdp: 125, socket: "LGA1700" },
     tag: null,
   },
   {
@@ -28,7 +31,8 @@ const PRODUCTS = [
     category: "Процессоры",
     brand: "AMD",
     price: 54900,
-    specs: { cores: 16, threads: 32, tdp: 170, socket: "AM5", boost: "5.7 ГГц" },
+    year: 2022,
+    specs: { cores: 16, threads: 32, base: "4.5 ГГц", boost: "5.7 ГГц", tdp: 170, socket: "AM5" },
     tag: "Топ",
   },
   {
@@ -37,7 +41,8 @@ const PRODUCTS = [
     category: "Процессоры",
     brand: "Intel",
     price: 58000,
-    specs: { cores: 24, threads: 32, tdp: 253, socket: "LGA1700", boost: "6.0 ГГц" },
+    year: 2023,
+    specs: { cores: 24, threads: 32, base: "3.2 ГГц", boost: "6.0 ГГц", tdp: 253, socket: "LGA1700" },
     tag: null,
   },
   {
@@ -46,8 +51,17 @@ const PRODUCTS = [
     category: "Видеокарты",
     brand: "NVIDIA",
     price: 62000,
-    specs: { vram: "12 ГБ", bus: "192 бит", tdp: 220, api: "DirectX 12" },
+    year: 2024,
+    specs: { gpu: "AD104", vram: "12 ГБ", memType: "GDDR6X", bus: "192 бит", tdp: 220 },
     tag: "Хит",
+    priceHistory: [
+      { month: "Янв", price: 72000 },
+      { month: "Мар", price: 68000 },
+      { month: "Май", price: 65000 },
+      { month: "Июл", price: 63000 },
+      { month: "Сен", price: 62000 },
+      { month: "Ноя", price: 62000 },
+    ],
   },
   {
     id: 6,
@@ -55,8 +69,17 @@ const PRODUCTS = [
     category: "Видеокарты",
     brand: "AMD",
     price: 48500,
-    specs: { vram: "16 ГБ", bus: "256 бит", tdp: 263, api: "DirectX 12" },
+    year: 2023,
+    specs: { gpu: "Navi 32", vram: "16 ГБ", memType: "GDDR6", bus: "256 бит", tdp: 263 },
     tag: null,
+    priceHistory: [
+      { month: "Янв", price: 55000 },
+      { month: "Мар", price: 53000 },
+      { month: "Май", price: 51000 },
+      { month: "Июл", price: 49500 },
+      { month: "Сен", price: 49000 },
+      { month: "Ноя", price: 48500 },
+    ],
   },
   {
     id: 7,
@@ -64,8 +87,17 @@ const PRODUCTS = [
     category: "Видеокарты",
     brand: "NVIDIA",
     price: 33000,
-    specs: { vram: "8 ГБ", bus: "128 бит", tdp: 115, api: "DirectX 12" },
+    year: 2023,
+    specs: { gpu: "AD107", vram: "8 ГБ", memType: "GDDR6", bus: "128 бит", tdp: 115 },
     tag: "Выгодно",
+    priceHistory: [
+      { month: "Янв", price: 38000 },
+      { month: "Мар", price: 36000 },
+      { month: "Май", price: 35000 },
+      { month: "Июл", price: 34000 },
+      { month: "Сен", price: 33500 },
+      { month: "Ноя", price: 33000 },
+    ],
   },
   {
     id: 8,
@@ -73,6 +105,7 @@ const PRODUCTS = [
     category: "Оперативная память",
     brand: "Kingston",
     price: 8900,
+    year: 2022,
     specs: { capacity: "32 ГБ", speed: "6000 МГц", type: "DDR5", latency: "CL36" },
     tag: null,
   },
@@ -82,6 +115,7 @@ const PRODUCTS = [
     category: "Оперативная память",
     brand: "G.Skill",
     price: 19800,
+    year: 2023,
     specs: { capacity: "64 ГБ", speed: "6400 МГц", type: "DDR5", latency: "CL32" },
     tag: "Топ",
   },
@@ -91,6 +125,7 @@ const PRODUCTS = [
     category: "Накопители",
     brand: "Samsung",
     price: 16500,
+    year: 2023,
     specs: { capacity: "2 ТБ", read: "7450 МБ/с", write: "6900 МБ/с", interface: "NVMe PCIe 4.0" },
     tag: null,
   },
@@ -100,6 +135,7 @@ const PRODUCTS = [
     category: "Накопители",
     brand: "WD",
     price: 9200,
+    year: 2023,
     specs: { capacity: "1 ТБ", read: "7300 МБ/с", write: "6300 МБ/с", interface: "NVMe PCIe 4.0" },
     tag: "Хит",
   },
@@ -109,6 +145,7 @@ const PRODUCTS = [
     category: "Блоки питания",
     brand: "be quiet!",
     price: 28000,
+    year: 2022,
     specs: { power: "1000 Вт", cert: "80+ Titanium", modular: "Полностью модульный", fan: "135 мм" },
     tag: null,
   },
@@ -125,10 +162,13 @@ const formatPrice = (p: number) => p.toLocaleString("ru-RU") + " ₽";
 const SPEC_LABELS: Record<string, string> = {
   cores: "Ядра",
   threads: "Потоки",
-  tdp: "TDP",
-  socket: "Сокет",
+  base: "Тактовая частота",
   boost: "Буст частота",
+  tdp: "TDP (Вт)",
+  socket: "Сокет",
+  gpu: "Графический процессор",
   vram: "Видеопамять",
+  memType: "Тип памяти",
   bus: "Шина памяти",
   api: "API",
   capacity: "Объём",
@@ -464,16 +504,38 @@ function ProductGrid({
 
             <h3 className="font-semibold text-sm mb-3 leading-snug">{p.name}</h3>
 
-            <div className="space-y-1 mb-4">
-              {Object.entries(p.specs)
-                .slice(0, 3)
-                .map(([k, v]) => (
-                  <div key={k} className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">{specLabel(k)}</span>
-                    <span className="font-medium">{String(v)}</span>
-                  </div>
-                ))}
+            <div className="space-y-1 mb-3">
+              {Object.entries(p.specs).map(([k, v]) => (
+                <div key={k} className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">{specLabel(k)}</span>
+                  <span className="font-medium">{String(v)}</span>
+                </div>
+              ))}
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">Год выпуска</span>
+                <span className="font-medium">{(p as typeof p & { year?: number }).year ?? "—"}</span>
+              </div>
             </div>
+
+            {(p as typeof p & { priceHistory?: { month: string; price: number }[] }).priceHistory && (
+              <div className="mb-3">
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 font-medium">
+                  История цен
+                </p>
+                <ResponsiveContainer width="100%" height={60}>
+                  <LineChart data={(p as typeof p & { priceHistory: { month: string; price: number }[] }).priceHistory}>
+                    <XAxis dataKey="month" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                    <YAxis hide domain={["auto", "auto"]} />
+                    <Tooltip
+                      contentStyle={{ fontSize: 11, padding: "4px 8px", borderRadius: 6, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
+                      formatter={(v: number) => [formatPrice(v), "Цена"]}
+                      labelStyle={{ display: "none" }}
+                    />
+                    <Line type="monotone" dataKey="price" stroke="hsl(16 90% 55%)" strokeWidth={1.5} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
 
             <div className="flex items-center justify-between pt-3 border-t border-border">
               <span className="font-semibold">{formatPrice(p.price)}</span>
